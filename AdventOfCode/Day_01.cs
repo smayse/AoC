@@ -11,6 +11,7 @@ namespace AdventOfCode
     public class Day_01 : BaseDay
     {
         private readonly string[] _input;
+        private readonly string[] _writtenDigits = { "one", "two", "three", "four", "five", "six", "seven", "eight", "nine" };
         public Day_01()
         {
             _input = File.ReadAllLines(InputFilePath);
@@ -24,7 +25,8 @@ namespace AdventOfCode
             var sum = 0;
             foreach (var line in _input)
             {
-                var numbers = new string(line.Where(char.IsDigit).ToArray());
+                var result = line.Replace(_writtenDigits[0], "one1one").Replace(_writtenDigits[1], "two2two").Replace(_writtenDigits[2], "three3three").Replace(_writtenDigits[3], "four4four").Replace(_writtenDigits[4], "five5five").Replace(_writtenDigits[5], "six6six").Replace(_writtenDigits[6], "seven7seven").Replace(_writtenDigits[7], "eight8eight").Replace(_writtenDigits[8], "nine9nine");
+                var numbers = new string(result.Where(char.IsDigit).ToArray());
                 int.TryParse(numbers.First().ToString(), out var first);
                 int.TryParse(numbers.Last().ToString(), out var last);
                 int add = (first * 10) + last;
@@ -39,9 +41,10 @@ namespace AdventOfCode
             var sum = 0;
             foreach (var line in _input)
             {
+                var result = line.Replace(_writtenDigits[0], "one1one").Replace(_writtenDigits[1], "two2two").Replace(_writtenDigits[2], "three3three").Replace(_writtenDigits[3], "four4four").Replace(_writtenDigits[4], "five5five").Replace(_writtenDigits[5], "six6six").Replace(_writtenDigits[6], "seven7seven").Replace(_writtenDigits[7], "eight8eight").Replace(_writtenDigits[8], "nine9nine");
                 int firstDigit = 0;
                 int lastDigit = 0;
-                int number = Convert.ToInt32(Regex.Replace(line, @"\D", ""));
+                int number = Convert.ToInt32(Regex.Replace(result, @"\D", ""));
                 lastDigit = System.Math.Abs(number % 10);
                 while (number != 0)
                 {

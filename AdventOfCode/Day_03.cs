@@ -70,81 +70,57 @@ namespace AdventOfCode
             }
             return false;
         }
-        //private string CalculateSumPart1()
-        //{
-        //    var sum = 0;
-        //    for (var index = 0; index < _input.Length; index++)
-        //    {
-        //        var currentLine = _input[index];
-        //        var numbers = Regex.Split(currentLine, @"\D+");
-
-        //        string previousLine = null;
-        //        string nextLine = null;
-        //        if (index > 0) previousLine = _input[index - 1];
-        //        if (index < _input.Length - 1) nextLine = _input[index + 1];
-
-        //        foreach (var number in numbers)
-        //        {
-        //            if (index == 17 && number == "926")
-        //            {
-        //                var test = 0;
-        //            }
-        //            if (string.IsNullOrEmpty(number)) continue;
-        //            var foundIndex = currentLine.IndexOf(number, StringComparison.Ordinal);
-        //            var prefixChar = foundIndex > 0 ? currentLine[foundIndex - 1] : ' ';
-        //            if (_symbolRegex.IsMatch(prefixChar.ToString()))
-        //            {
-        //                sum += int.Parse(number);
-        //                continue;
-        //            }
-        //            var suffixChar = foundIndex + number.Length < currentLine.Length ? currentLine[foundIndex + number.Length] : ' ';
-        //            if (_symbolRegex.IsMatch(suffixChar.ToString()))
-        //            {
-        //                sum += int.Parse(number);
-        //                continue;
-        //            }
-
-        //            var added = false;
-        //            // Check previous line
-        //            if (previousLine != null)
-        //            {
-        //                for (int previousLineIndex = foundIndex - 1; previousLineIndex <= foundIndex + number.Length && previousLineIndex < currentLine.Length; previousLineIndex++)
-        //                {
-        //                    if (previousLineIndex < 0) continue;
-        //                    var checkChar = previousLine[previousLineIndex];
-        //                    if (_symbolRegex.IsMatch(checkChar.ToString()))
-        //                    {
-        //                        sum += int.Parse(number);
-        //                        added = true;
-        //                        break;
-        //                    }
-        //                }
-        //            }
-
-        //            // Check next line
-        //            if (nextLine == null || added) continue;
-        //            for (int nextLineIndex = foundIndex - 1; nextLineIndex <= foundIndex + number.Length && nextLineIndex < currentLine.Length; nextLineIndex++)
-        //            {
-        //                if (nextLineIndex < 0) continue;
-        //                var checkChar = nextLine[nextLineIndex];
-        //                if (_symbolRegex.IsMatch(checkChar.ToString()))
-        //                {
-        //                    sum += int.Parse(number);
-        //                    break;
-        //                }
-        //            }
-        //        }
-        //    }
-
-        //    return sum.ToString();
-        //}
+        
 
         private string CalculateSumPart2()
         {
-            var sum = 0;
-            
+            var gearLocations = new List<(int row, int col, int partNumber)>();
 
+            for (int i = 0; i < _rows.Count; i++)
+            {
+                var regex = new Regex(@"\d+");
+                foreach (Match match in regex.Matches(_rows[i]))
+                {
+                    var part = int.Parse(match.Value);
+                    var startIndex = match.Index;
+                    var endIndex = startIndex + match.Value.Length - 1;
+
+                    var searchCells = GetSearchGrid(i, startIndex, endIndex);
+                    var gears = FindSpecialCharacter(searchCells, part);
+                    gearLocations.AddRange(gears);
+                }
+            }
+
+            var sum = gearLocations
+                .GroupBy(gearLocation => new
+                {
+                    gearLocation.row,
+                    gearLocation.col,
+                })
+                .Select(gearLocationGroup => new
+                {
+                    row = gearLocationGroup.Key.row,
+                    col = gearLocationGroup.Key.col,
+                    partNumbers = gearLocationGroup.Select(glg => glg.partNumber).ToList(),
+                })
+                .Where(gearLocationGroup => gearLocationGroup.partNumbers.Count() == 2)
+                .Select(gearLocationGroup => gearLocationGroup.partNumbers[0] * gearLocationGroup.partNumbers[1])
+                .Sum();
             return sum.ToString();
+        }
+
+        private List<(int row, int col, int part)> FindSpecialCharacter(List<(int row, int col)> searchGrid, int part)
+        {
+            var symbols = new List<(int row, int col, int partNumber)>();
+            foreach (var searchCell in searchGrid)
+            {
+                var cell = _rows[searchCell.row][searchCell.col];
+                if (cell == '*')
+                {
+                    symbols.Add((searchCell.row, searchCell.col, part));
+                }
+            }
+            return symbols;
         }
     }
 }
